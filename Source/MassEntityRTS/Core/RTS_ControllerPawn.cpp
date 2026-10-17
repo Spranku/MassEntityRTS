@@ -38,18 +38,30 @@ void ARTS_ControllerPawn::BeginPlay()
 
 void ARTS_ControllerPawn::Move(const FInputActionValue& Value)
 {
+	if (!IsValid(Controller)) return;
+
 	const auto MovementInput = Value.Get<FVector2D>();
-	if (Controller)
-	{
-		const auto Rotation = Controller->GetControlRotation();
-		const auto YawRotation = FRotator(0, Rotation.Yaw, 0);
 
-		const auto Forward = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		const auto Right = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+	const auto Rotation = Controller->GetControlRotation();
+	const auto YawRotation = FRotator(0, Rotation.Yaw, 0);
 
-		AddMovementInput(Forward, MovementInput.Y);
-		AddMovementInput(Right, MovementInput.X);
-	}
+	const auto Forward = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	const auto Right = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+	AddMovementInput(Forward, MovementInput.Y);
+	AddMovementInput(Right, MovementInput.X);
+
+}
+
+void ARTS_ControllerPawn::Zoom(const FInputActionValue& Value)
+{
+	if (!IsValid(Controller)) return;
+
+	const auto ZoomDirection = Value.Get<float>();
+
+	auto DesiredOrthiWidWidth = Camera->OrthoWidth - ZoomDirection * CameraZoomSpeed;
+	DesiredOrthiWidWidth = FMath::Clamp(DesiredOrthiWidWidth, MinOrthoWidth, MaxOrthoWidth);
+	Camera->OrthoWidth = DesiredOrthiWidWidth;
 }
 
 // Called every frame
@@ -67,6 +79,8 @@ void ARTS_ControllerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	if (auto* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ARTS_ControllerPawn::Move);
+
+		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &ARTS_ControllerPawn::Zoom);
 	}
 }
 
