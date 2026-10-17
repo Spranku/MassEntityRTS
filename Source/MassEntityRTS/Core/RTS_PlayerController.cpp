@@ -1,0 +1,25 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "Core/RTS_PlayerController.h"
+#include "InputMappingContext.h"
+#include "EnhancedInputSubsystems.h"
+
+ARTS_PlayerController::ARTS_PlayerController()
+{
+	bShowMouseCursor = true;
+}
+
+void ARTS_PlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	if (!DefaultInputMappingContext) return;
+
+	if (auto* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		Subsystem->AddMappingContext(DefaultInputMappingContext, 0);
+		UE_LOG(LogTemp, Warning, TEXT("Success add maxipng context"));
+	}
+
+}
