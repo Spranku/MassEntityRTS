@@ -4,6 +4,8 @@
 #include "Core/RTS_PlayerController.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
+#include "InputActionValue.h"
 
 ARTS_PlayerController::ARTS_PlayerController()
 {
@@ -22,4 +24,14 @@ void ARTS_PlayerController::SetupInputComponent()
 		UE_LOG(LogTemp, Warning, TEXT("Success add maxipng context"));
 	}
 
+	if (auto* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
+	{
+		EnhancedInputComponent->BindAction(SelectAction, ETriggerEvent::Triggered, this, &ARTS_PlayerController::Select);
+	}
+
+}
+
+void ARTS_PlayerController::Select(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("SelectAction"));
 }

@@ -7,6 +7,8 @@
 #include "RTS_PlayerController.generated.h"
 
 class UInputMappingContext;
+class UInputAction;
+struct FInputActionValue;
 
 UCLASS()
 class MASSENTITYRTS_API ARTS_PlayerController : public APlayerController
@@ -17,10 +19,17 @@ public:
 
 	ARTS_PlayerController();
 
-	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> DefaultInputMappingContext;
+
+private:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> SelectAction;
 
 protected:
 
 	virtual void SetupInputComponent() override;
+
+	void Select(const FInputActionValue& Value);
 };
