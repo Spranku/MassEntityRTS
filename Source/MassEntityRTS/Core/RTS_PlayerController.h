@@ -9,6 +9,7 @@
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+class ARTS_BasePawn;
 
 UCLASS()
 class MASSENTITYRTS_API ARTS_PlayerController : public APlayerController
@@ -26,6 +27,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> SelectAction;
+
+	UPROPERTY()
+	TObjectPtr<ARTS_BasePawn> SelectedPawn = nullptr;
 
 protected:
 

@@ -19,6 +19,7 @@ class MASSENTITYRTS_API ARTS_ControllerPawn : public APawn
 	GENERATED_BODY()
 
 private:
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Collision, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCapsuleComponent> CapsuleComponent;
 

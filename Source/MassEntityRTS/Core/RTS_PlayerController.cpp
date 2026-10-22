@@ -6,6 +6,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
+#include "Core/RTS_BasePawn.h"
 
 ARTS_PlayerController::ARTS_PlayerController()
 {
@@ -26,7 +27,7 @@ void ARTS_PlayerController::SetupInputComponent()
 
 	if (auto* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
-		EnhancedInputComponent->BindAction(SelectAction, ETriggerEvent::Triggered, this, &ARTS_PlayerController::Select);
+		EnhancedInputComponent->BindAction(SelectAction, ETriggerEvent::Completed, this, &ARTS_PlayerController::Select);
 	}
 
 }
@@ -34,4 +35,20 @@ void ARTS_PlayerController::SetupInputComponent()
 void ARTS_PlayerController::Select(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Warning, TEXT("SelectAction"));
+
+	FHitResult HitResult;
+	GetHitResultUnderCursor(ECollisionChannel::ECC_Camera, false, HitResult);
+
+	auto* SelectedActor = HitResult.GetActor();
+
+	if (SelectedActor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Selected Actor: %s"), *SelectedActor->GetName());
+
+		/* Deselect previous actor */ 
+		if (SelectedPawn) { SelectedPawn->SelectActor(false); }
+
+		/* Select new actor */
+		if (SelectedPawn = Cast<ARTS_BasePawn>(SelectedActor)) { SelectedPawn->SelectActor(true); }
+	}
 }

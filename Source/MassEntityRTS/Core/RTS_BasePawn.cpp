@@ -13,7 +13,13 @@ ARTS_BasePawn::ARTS_BasePawn()
 	PrimaryActorTick.bCanEverTick = true;
 
 	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComponent"));
+	CapsuleComponent->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
 	RootComponent = CapsuleComponent;
+
+	SelectedIndicator = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SelectedIndicator"));
+	SelectedIndicator->SetupAttachment(RootComponent);
+	SelectedIndicator->SetHiddenInGame(true);
+	SelectedIndicator->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
 	SkeletalMesh->SetupAttachment(RootComponent);
@@ -41,5 +47,14 @@ void ARTS_BasePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void ARTS_BasePawn::SelectActor(const bool bSelect)
+{
+	SelectedIndicator->SetHiddenInGame(!bSelect);
+}
+
+void ARTS_BasePawn::DeselectActor()
+{
 }
 
