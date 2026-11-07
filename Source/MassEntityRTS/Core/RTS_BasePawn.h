@@ -20,7 +20,7 @@ public:
 	// Sets default values for this pawn's properties
 	ARTS_BasePawn();
 
-	void SelectActor_Implementation(const bool bSelect) override;
+	virtual void SelectActor_Implementation(const bool bSelect) override;
 
 private:
 
