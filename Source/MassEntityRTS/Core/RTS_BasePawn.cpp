@@ -49,10 +49,15 @@ void ARTS_BasePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 }
 
-void ARTS_BasePawn::SelectActor(const bool bSelect)
+void ARTS_BasePawn::SelectActor_Implementation(const bool bSelect)
 {
 	SelectedIndicator->SetHiddenInGame(!bSelect);
 }
+
+//void ARTS_BasePawn::SelectActor(const bool bSelect)
+//{
+//	SelectedIndicator->SetHiddenInGame(!bSelect);
+//}
 
 void ARTS_BasePawn::DeselectActor()
 {

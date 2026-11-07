@@ -39,16 +39,24 @@ void ARTS_PlayerController::Select(const FInputActionValue& Value)
 	FHitResult HitResult;
 	GetHitResultUnderCursor(ECollisionChannel::ECC_Camera, false, HitResult);
 
-	auto* SelectedActor = HitResult.GetActor();
+	// Deselect previously selected actor
+	if (SelectedActor)
+	{
+		if (SelectedActor->GetClass()->ImplementsInterface(USelectableInterface::StaticClass()))
+		{
+			ISelectableInterface::Execute_SelectActor(SelectedActor, false);
+		}
+	}
+
+	SelectedActor = HitResult.GetActor();
 
 	if (SelectedActor)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Selected Actor: %s"), *SelectedActor->GetName());
 
-		/* Deselect previous actor */ 
-		if (SelectedPawn) { SelectedPawn->SelectActor(false); }
-
-		/* Select new actor */
-		if (SelectedPawn = Cast<ARTS_BasePawn>(SelectedActor)) { SelectedPawn->SelectActor(true); }
+		if (SelectedActor->GetClass()->ImplementsInterface(USelectableInterface::StaticClass()))
+		{
+			ISelectableInterface::Execute_SelectActor(SelectedActor, true);
+		}
 	}
 }

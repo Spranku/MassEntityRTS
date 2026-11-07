@@ -29,7 +29,7 @@ private:
 	TObjectPtr<UInputAction> SelectAction;
 
 	UPROPERTY()
-	TObjectPtr<ARTS_BasePawn> SelectedPawn = nullptr;
+	TObjectPtr<AActor> SelectedActor = nullptr;
 
 protected:
 
