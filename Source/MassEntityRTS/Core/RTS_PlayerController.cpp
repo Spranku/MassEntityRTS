@@ -28,6 +28,8 @@ void ARTS_PlayerController::SetupInputComponent()
 	if (auto* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
 		EnhancedInputComponent->BindAction(SelectAction, ETriggerEvent::Completed, this, &ARTS_PlayerController::Select);
+
+		EnhancedInputComponent->BindAction(CommandAction, ETriggerEvent::Completed, this, &ARTS_PlayerController::CommandSelectedActor);
 	}
 
 }
@@ -57,6 +59,26 @@ void ARTS_PlayerController::Select(const FInputActionValue& Value)
 		if (SelectedActor->GetClass()->ImplementsInterface(USelectableInterface::StaticClass()))
 		{
 			ISelectableInterface::Execute_SelectActor(SelectedActor, true);
+		}
+	}
+}
+
+void ARTS_PlayerController::CommandSelectedActor(const FInputActionValue& Value)
+{
+	if (SelectedActor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CommandAction: %s"), *SelectedActor->GetName());
+
+		if (SelectedActor->GetClass()->ImplementsInterface(UNavigableInterface::StaticClass()))
+		{
+			FHitResult HitResult;
+			GetHitResultUnderCursor(ECollisionChannel::ECC_Camera, false, HitResult);
+
+
+			if (HitResult.bBlockingHit)
+			{
+				INavigableInterface::Execute_MoveToLocation(SelectedActor, HitResult.Location);
+			}
 		}
 	}
 }

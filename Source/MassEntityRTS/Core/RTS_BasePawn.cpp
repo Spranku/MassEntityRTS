@@ -54,10 +54,12 @@ void ARTS_BasePawn::SelectActor_Implementation(const bool bSelect)
 	SelectedIndicator->SetHiddenInGame(!bSelect);
 }
 
-//void ARTS_BasePawn::SelectActor(const bool bSelect)
-//{
-//	SelectedIndicator->SetHiddenInGame(!bSelect);
-//}
+void ARTS_BasePawn::MoveToLocation_Implementation(const FVector TargetLocation)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Navigation"));
+	MoveTargetLocation = TargetLocation + FVector(0, 0, GetDefaultHalfHeight());
+	SetActorLocation(MoveTargetLocation);
+}
 
 void ARTS_BasePawn::DeselectActor()
 {
