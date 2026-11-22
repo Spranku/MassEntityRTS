@@ -7,10 +7,19 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "Core/RTS_BasePawn.h"
+#include "HUD/RTSHUD.h"
 
 ARTS_PlayerController::ARTS_PlayerController()
 {
 	bShowMouseCursor = true;
+}
+
+void ARTS_PlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	RTSHUD = Cast<ARTSHUD>(GetHUD());
+
 }
 
 void ARTS_PlayerController::SetupInputComponent()
@@ -28,6 +37,10 @@ void ARTS_PlayerController::SetupInputComponent()
 	if (auto* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
 		EnhancedInputComponent->BindAction(SelectAction, ETriggerEvent::Completed, this, &ARTS_PlayerController::Select);
+		EnhancedInputComponent->BindAction(SelectAction, ETriggerEvent::Started, this, &ARTS_PlayerController::SelectStart);
+		EnhancedInputComponent->BindAction(SelectAction, ETriggerEvent::Triggered, this, &ARTS_PlayerController::SelectOnGoing);
+		EnhancedInputComponent->BindAction(SelectAction, ETriggerEvent::Completed, this, &ARTS_PlayerController::SelectEnd);
+
 
 		EnhancedInputComponent->BindAction(CommandAction, ETriggerEvent::Completed, this, &ARTS_PlayerController::CommandSelectedActor);
 	}
@@ -74,11 +87,40 @@ void ARTS_PlayerController::CommandSelectedActor(const FInputActionValue& Value)
 			FHitResult HitResult;
 			GetHitResultUnderCursor(ECollisionChannel::ECC_Camera, false, HitResult);
 
-
 			if (HitResult.bBlockingHit)
 			{
 				INavigableInterface::Execute_MoveToLocation(SelectedActor, HitResult.Location);
 			}
 		}
+	}
+}
+
+void ARTS_PlayerController::SelectStart(const FInputActionValue& Value)
+{
+	float MouseX, MouseY;
+	GetMousePosition(MouseX, MouseY);
+
+	SelectionStartPosition = FVector2D(MouseX, MouseY);
+	UE_LOG(LogTemp, Display, TEXT("Selection started"));
+}
+
+void ARTS_PlayerController::SelectOnGoing(const FInputActionValue& Value)
+{
+	float MouseX, MouseY;
+	GetMousePosition(MouseX, MouseY);
+	SelectionSize = FVector2D(MouseX - SelectionStartPosition.X, MouseY - SelectionStartPosition.Y);
+	UE_LOG(LogTemp, Warning, TEXT("SelectOnGoing"));
+	if (RTSHUD)
+	{
+		RTSHUD->ShowSelectionRect(SelectionStartPosition, SelectionSize);
+	}
+}
+
+void ARTS_PlayerController::SelectEnd(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Select End"));
+	if (RTSHUD)
+	{
+		RTSHUD->HideSelectionRect();
 	}
 }

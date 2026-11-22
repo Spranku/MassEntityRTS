@@ -10,6 +10,7 @@ class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 class ARTS_BasePawn;
+class ARTSHUD;
 
 UCLASS()
 class MASSENTITYRTS_API ARTS_PlayerController : public APlayerController
@@ -31,14 +32,32 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> CommandAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<ARTSHUD> RTSHUD = nullptr;
+
 	UPROPERTY()
 	TObjectPtr<AActor> SelectedActor = nullptr;
 
+	/* Actor selected variables */
+	FVector2D SelectionStartPosition = FVector2D(0);
+
+	FVector2D SelectionSize = FVector2D(0);
+
 protected:
+
+	virtual void BeginPlay() override;
 
 	virtual void SetupInputComponent() override;
 
 	void Select(const FInputActionValue& Value);
 
 	void CommandSelectedActor(const FInputActionValue& Value);
+
+	/* Actors selected */
+	void SelectStart(const FInputActionValue& Value);
+
+	void SelectOnGoing(const FInputActionValue& Value);
+
+	void SelectEnd(const FInputActionValue& Value);
+
 };

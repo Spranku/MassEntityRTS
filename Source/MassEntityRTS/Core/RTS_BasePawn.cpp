@@ -6,7 +6,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Kismet/KismetMathLibrary.h"
-
+#include "AIController.h"
 
 // Sets default values
 ARTS_BasePawn::ARTS_BasePawn()
@@ -16,6 +16,7 @@ ARTS_BasePawn::ARTS_BasePawn()
 
 	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComponent"));
 	CapsuleComponent->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
+	CapsuleComponent->SetCanEverAffectNavigation(false);
 	RootComponent = CapsuleComponent;
 
 	SelectedIndicator = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SelectedIndicator"));
@@ -42,10 +43,10 @@ void ARTS_BasePawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	Move();
+	OrientPawnToMovement();
 }
 
-void ARTS_BasePawn::Move()
+void ARTS_BasePawn::OrientPawnToMovement()
 {
 	if (!bMoving) return;
 
@@ -57,8 +58,6 @@ void ARTS_BasePawn::Move()
 	}
 
 	MoveDirection.Normalize(1);
-	AddMovementInput(MoveDirection, CharacterMoveSpeed);
-
 	FRotator DesiredRotation = UKismetMathLibrary::MakeRotFromX(MoveDirection);
 	DesiredRotation.Pitch = 0;
 	DesiredRotation.Roll = 0;
@@ -84,6 +83,10 @@ void ARTS_BasePawn::MoveToLocation_Implementation(const FVector TargetLocation)
 	UE_LOG(LogTemp, Warning, TEXT("Navigation"));
 	MoveTargetLocation = TargetLocation + FVector(0, 0, GetDefaultHalfHeight());
 	bMoving = true;
+
+	auto AIController = Cast<AAIController>(GetController());
+	if (!AIController) return;
+	AIController->MoveToLocation(TargetLocation, AcceptanceDistance);
 }
 
 void ARTS_BasePawn::DeselectActor()
