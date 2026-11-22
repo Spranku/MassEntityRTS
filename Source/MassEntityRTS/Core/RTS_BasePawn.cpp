@@ -5,6 +5,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
+#include "Kismet/KismetMathLibrary.h"
+
 
 // Sets default values
 ARTS_BasePawn::ARTS_BasePawn()
@@ -40,6 +42,29 @@ void ARTS_BasePawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	Move();
+}
+
+void ARTS_BasePawn::Move()
+{
+	if (!bMoving) return;
+
+	FVector MoveDirection = (MoveTargetLocation - GetActorLocation());
+	if (MoveDirection.Length() < AcceptanceDistance)
+	{
+		bMoving = false;
+		return;
+	}
+
+	MoveDirection.Normalize(1);
+	AddMovementInput(MoveDirection, CharacterMoveSpeed);
+
+	FRotator DesiredRotation = UKismetMathLibrary::MakeRotFromX(MoveDirection);
+	DesiredRotation.Pitch = 0;
+	DesiredRotation.Roll = 0;
+
+	FRotator NewRotator = FMath::RInterpTo(GetActorRotation(), DesiredRotation, GetWorld()->GetDeltaSeconds(), CharacterTurnSpeed);
+	SetActorRotation(NewRotator);
 }
 
 // Called to bind functionality to input
@@ -58,7 +83,7 @@ void ARTS_BasePawn::MoveToLocation_Implementation(const FVector TargetLocation)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Navigation"));
 	MoveTargetLocation = TargetLocation + FVector(0, 0, GetDefaultHalfHeight());
-	SetActorLocation(MoveTargetLocation);
+	bMoving = true;
 }
 
 void ARTS_BasePawn::DeselectActor()

@@ -43,9 +43,20 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	FVector MoveTargetLocation = FVector::ZeroVector;
+	void Move();
 
 	bool bMoving = false;
+
+	FVector MoveTargetLocation = FVector::ZeroVector;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Pawn Settings")
+	float AcceptanceDistance = 50.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Pawn Settings")
+	float CharacterMoveSpeed = 1.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Pawn Settings")
+	float CharacterTurnSpeed = 5.0f;
 
 public:	
 	// Called every frame
