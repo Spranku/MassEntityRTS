@@ -49,7 +49,7 @@ void ARTS_PlayerController::SetupInputComponent()
 
 void ARTS_PlayerController::Select(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("SelectAction"));
+	//UE_LOG(LogTemp, Warning, TEXT("SelectAction"));
 
 	FHitResult HitResult;
 	GetHitResultUnderCursor(ECollisionChannel::ECC_Camera, false, HitResult);
@@ -67,7 +67,7 @@ void ARTS_PlayerController::Select(const FInputActionValue& Value)
 
 	if (SelectedActor)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Selected Actor: %s"), *SelectedActor->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Selected Actor: %s"), *SelectedActor->GetName());
 
 		if (SelectedActor->GetClass()->ImplementsInterface(USelectableInterface::StaticClass()))
 		{
@@ -109,7 +109,7 @@ void ARTS_PlayerController::SelectOnGoing(const FInputActionValue& Value)
 	float MouseX, MouseY;
 	GetMousePosition(MouseX, MouseY);
 	SelectionSize = FVector2D(MouseX - SelectionStartPosition.X, MouseY - SelectionStartPosition.Y);
-	UE_LOG(LogTemp, Warning, TEXT("SelectOnGoing"));
+	//UE_LOG(LogTemp, Warning, TEXT("SelectOnGoing"));
 	if (RTSHUD)
 	{
 		RTSHUD->ShowSelectionRect(SelectionStartPosition, SelectionSize);
@@ -119,8 +119,42 @@ void ARTS_PlayerController::SelectOnGoing(const FInputActionValue& Value)
 void ARTS_PlayerController::SelectEnd(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Select End"));
-	if (RTSHUD)
+	constexpr float DELAY_TIME = 0.2f;
+
+	if (!RTSHUD) return;
+	RTSHUD->HideSelectionRect();
+
+	FTimerHandle TimerHandle;
+	auto World = GetWorld();
+	if (World)
 	{
-		RTSHUD->HideSelectionRect();
+		World->GetTimerManager().SetTimer(TimerHandle, this, &ARTS_PlayerController::SelectMultiplyActors, DELAY_TIME, false);
+	}
+
+}
+
+void ARTS_PlayerController::SelectMultiplyActors()
+{
+	if (!RTSHUD) return;
+
+	/* Deselect old selected actors */
+	for (auto* i : SelectedActors)
+	{
+		if (i && i->GetClass()->ImplementsInterface(USelectableInterface::StaticClass()))
+		{
+			ISelectableInterface::Execute_SelectActor(i, false);
+		}
+	}
+
+	/* Select new actors */
+	RTSHUD->HideSelectionRect();
+	SelectedActors = RTSHUD->GetSelectedActors();
+
+	for (auto* i : SelectedActors)
+	{
+		if (i && i->GetClass()->ImplementsInterface(USelectableInterface::StaticClass()))
+		{
+			ISelectableInterface::Execute_SelectActor(i, true);
+		}
 	}
 }

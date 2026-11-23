@@ -18,21 +18,30 @@ private:
 
 	bool bDrawSelectionRect = false;
 
+	bool bSelectActos = false;
+
 	FVector2D SelectionRectStart;
 
 	FVector2D SelectionRectSize;
 
+	UPROPERTY()
+	TArray<AActor*> SelectedActors;
 
 protected:
 
 	virtual void DrawHUD() override;
 
-public:
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Select color")
 	FLinearColor SelectionRectColor = FLinearColor(1.0f, 0.0f, 0.2f);
 
+public:
+
+	void SelectActorsInRect();
+
 	void ShowSelectionRect(const FVector2D inSelectionRectStart, const FVector2D InSelectionRectSize);
 
-	void HideSelectionRect() { bDrawSelectionRect = false; }
+	void HideSelectionRect() { bDrawSelectionRect = false; bSelectActos = true; }
+
+	UFUNCTION(BlueprintPure)
+	TArray<AActor*> GetSelectedActors() const { return SelectedActors; }
 };

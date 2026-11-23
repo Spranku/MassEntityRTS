@@ -38,6 +38,9 @@ private:
 	UPROPERTY()
 	TObjectPtr<AActor> SelectedActor = nullptr;
 
+	UPROPERTY()
+	TArray<AActor*> SelectedActors;
+
 	/* Actor selected variables */
 	FVector2D SelectionStartPosition = FVector2D(0);
 
@@ -60,4 +63,5 @@ protected:
 
 	void SelectEnd(const FInputActionValue& Value);
 
+	void SelectMultiplyActors();
 };
