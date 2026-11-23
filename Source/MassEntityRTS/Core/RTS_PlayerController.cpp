@@ -42,7 +42,7 @@ void ARTS_PlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(SelectAction, ETriggerEvent::Completed, this, &ARTS_PlayerController::SelectEnd);
 
 
-		EnhancedInputComponent->BindAction(CommandAction, ETriggerEvent::Completed, this, &ARTS_PlayerController::CommandSelectedActor);
+		EnhancedInputComponent->BindAction(CommandAction, ETriggerEvent::Completed, this, &ARTS_PlayerController::CommandSelectedActors);
 	}
 
 }
@@ -76,18 +76,34 @@ void ARTS_PlayerController::Select(const FInputActionValue& Value)
 	}
 }
 
-void ARTS_PlayerController::CommandSelectedActor(const FInputActionValue& Value)
+void ARTS_PlayerController::CommandSelectedActors(const FInputActionValue& Value)
 {
-	if (SelectedActor)
+	FHitResult HitResult;
+	GetHitResultUnderCursor(ECollisionChannel::ECC_Camera, false, HitResult);
+	if (!HitResult.bBlockingHit) return;
+
+
+	/* Any actors */
+	if (SelectedActors.Num() > 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CommandAction: %s"), *SelectedActor->GetName());
-
-		if (SelectedActor->GetClass()->ImplementsInterface(UNavigableInterface::StaticClass()))
+		int i = SelectedActors.Num() / -2;
+ 		for (auto* Actor : SelectedActors)
 		{
-			FHitResult HitResult;
-			GetHitResultUnderCursor(ECollisionChannel::ECC_Camera, false, HitResult);
+			if (Actor && Actor->GetClass()->ImplementsInterface(UNavigableInterface::StaticClass()))
+			{
+				INavigableInterface::Execute_MoveToLocation(Actor, HitResult.Location + FVector(0, 100 * i, 0));
+				++i;
+			}
+		}
+	}
+	else 
+	{
+		/* Once actor */
+		if (SelectedActor)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("CommandAction: %s"), *SelectedActor->GetName());
 
-			if (HitResult.bBlockingHit)
+			if (SelectedActor->GetClass()->ImplementsInterface(UNavigableInterface::StaticClass()))
 			{
 				INavigableInterface::Execute_MoveToLocation(SelectedActor, HitResult.Location);
 			}
@@ -147,14 +163,16 @@ void ARTS_PlayerController::SelectMultiplyActors()
 	}
 
 	/* Select new actors */
+	SelectedActors.Empty();
 	RTSHUD->HideSelectionRect();
-	SelectedActors = RTSHUD->GetSelectedActors();
+	TArray<AActor*> AllSelectedActors = RTSHUD->GetSelectedActors();
 
-	for (auto* i : SelectedActors)
+	for (auto* Actor : AllSelectedActors)
 	{
-		if (i && i->GetClass()->ImplementsInterface(USelectableInterface::StaticClass()))
+		if (Actor && Actor->GetClass()->ImplementsInterface(USelectableInterface::StaticClass()))
 		{
-			ISelectableInterface::Execute_SelectActor(i, true);
+			ISelectableInterface::Execute_SelectActor(Actor, true);
+			SelectedActors.AddUnique(Actor);
 		}
 	}
 }

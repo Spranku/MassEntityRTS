@@ -54,7 +54,7 @@ protected:
 
 	void Select(const FInputActionValue& Value);
 
-	void CommandSelectedActor(const FInputActionValue& Value);
+	void CommandSelectedActors(const FInputActionValue& Value);
 
 	/* Actors selected */
 	void SelectStart(const FInputActionValue& Value);
