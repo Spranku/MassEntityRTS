@@ -33,7 +33,8 @@ ARTS_ControllerPawn::ARTS_ControllerPawn()
 void ARTS_ControllerPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	PlayerController = Cast<APlayerController>(Controller);
 }
 
 void ARTS_ControllerPawn::Move(const FInputActionValue& Value)
@@ -64,11 +65,52 @@ void ARTS_ControllerPawn::Zoom(const FInputActionValue& Value)
 	Camera->OrthoWidth = DesiredOrthiWidWidth;
 }
 
+void ARTS_ControllerPawn::EdgeScroll()
+{
+	if (!PlayerController) return;
+
+	float MouseX = 0.0f, MouseY = 0.0f;
+	if (PlayerController->GetMousePosition(MouseX, MouseY))
+	{
+		FVector2D ViewportSize;
+		FVector2D MovementInput = FVector2D::ZeroVector;
+
+		if (GEngine && GEngine->GameViewport)
+		{
+			GEngine->GameViewport->GetViewportSize(ViewportSize);
+
+			constexpr float EDGE_TRESHLODS = 10.0f;
+
+			if (MouseX < EDGE_TRESHLODS)
+			{
+				MovementInput.X = -1.f;
+			}
+			if (MouseX > (ViewportSize.X - EDGE_TRESHLODS))
+			{
+				MovementInput.X = 1.f;
+			}
+			if (MouseY < EDGE_TRESHLODS)
+			{
+				MovementInput.Y = 1.f;
+			}
+			if (MouseY > (ViewportSize.Y - EDGE_TRESHLODS))
+			{
+				MovementInput.Y = -1.f;
+			}
+
+			if (!MovementInput.IsZero())
+			{
+				Move(FInputActionValue(MovementInput));
+			}
+		}
+	}
+}
+
 // Called every frame
 void ARTS_ControllerPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	EdgeScroll();
 }
 
 // Called to bind functionality to input

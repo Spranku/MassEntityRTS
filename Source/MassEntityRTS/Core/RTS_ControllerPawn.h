@@ -47,6 +47,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UFloatingPawnMovement> FloatingPawnMovement;
 
+	UPROPERTY()
+	TObjectPtr<APlayerController> PlayerController;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -54,6 +57,8 @@ protected:
 	void Move(const FInputActionValue& Value);
 
 	void Zoom(const FInputActionValue& Value);
+
+	void EdgeScroll();
 
 public:	
 	// Sets default values for this pawn's properties
